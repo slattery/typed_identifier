@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Provides a typed identifier field type with pluggable validation.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function typed_identifier_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.typed_identifier':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Typed Identifier module provides a flexible field type for storing typed identifier pairs (type + value) such as ORCID, DOI, ISBN, and other standardized identifiers. Each identifier type has its own validation rules and URL prefix for linking.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Adding typed identifier fields') . '</dt>';
+      $output .= '<dd>' . t('You can add a Typed Identifier field to any entity type (node, user, taxonomy term, etc.) through the field management interface. Configure which identifier types are allowed per field.') . '</dd>';
+      $output .= '<dt>' . t('Enforcing uniqueness') . '</dt>';
+      $output .= '<dd>' . t('Enable the uniqueness constraint in field settings to prevent duplicate identifier pairs within the same field across all entities.') . '</dd>';
+      $output .= '<dt>' . t('Creating custom identifier types') . '</dt>';
+      $output .= '<dd>' . t('Developers can create custom identifier type plugins by extending IdentifierTypePluginBase and placing them in src/Plugin/TypedIdentifier/IdentifierType/. Each plugin defines its label, URL prefix, and validation regex.') . '</dd>';
+      $output .= '<dt>' . t('Using the Generic identifier type') . '</dt>';
+      $output .= '<dd>' . t('The Generic identifier type allows custom labels defined in site configuration or per field. It has no prefix or validation beyond XSS protection.') . '</dd>';
+      $output .= '</dl>';
+      return $output;
+  }
+}

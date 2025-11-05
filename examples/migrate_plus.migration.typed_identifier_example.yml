@@ -1,0 +1,143 @@
+# Example migration configuration for typed_identifier fields.
+#
+# This example demonstrates how to use the typed_identifier process plugin
+# to migrate data into typed_identifier fields from various source formats.
+#
+# To use this example:
+# 1. Install the migrate_plus and migrate_tools modules.
+# 2. Copy this file to your config/install directory or import it.
+# 3. Adjust the source configuration to match your data source.
+# 4. Run: drush migrate:import typed_identifier_example
+
+id: typed_identifier_example
+label: 'Example: Typed Identifier Migration'
+migration_group: example
+migration_tags:
+  - typed_identifier
+
+source:
+  # This example uses CSV source, but you can use any source plugin.
+  plugin: csv
+  path: '/path/to/your/identifiers.csv'
+  header_offset: 0
+  ids:
+    - id
+  fields:
+    0:
+      name: id
+      label: 'Unique ID'
+    1:
+      name: title
+      label: 'Publication Title'
+    2:
+      name: doi_url
+      label: 'DOI URL'
+    3:
+      name: orcid_id
+      label: 'ORCID ID'
+    4:
+      name: isbn
+      label: 'ISBN'
+    5:
+      name: identifier_type
+      label: 'Generic Identifier Type'
+    6:
+      name: identifier_value
+      label: 'Generic Identifier Value'
+    7:
+      name: multi_identifiers
+      label: 'Multiple Identifiers (JSON array)'
+
+  # Example CSV structure:
+  # id,title,doi_url,orcid_id,isbn,identifier_type,identifier_value,multi_identifiers
+  # 1,"Sample Paper","https://doi.org/10.1234/example","0000-0001-2345-6789","978-3-16-148410-0","","",""
+  # 2,"Another Paper","","","","pubmed","12345678","[{""type"":""doi"",""value"":""10.5678/test""},{""type"":""openalex"",""value"":""W2741809807""}]"
+
+destination:
+  plugin: 'entity:node'
+  default_bundle: article
+
+process:
+  # Simple field mapping.
+  type:
+    plugin: default_value
+    default_value: article
+
+  title: title
+
+  # Example 1: Simple DOI field with URL normalization.
+  # The field will automatically strip the https://doi.org/ prefix.
+  field_doi:
+    plugin: typed_identifier
+    itemtype: doi
+    itemvalue: doi_url
+
+  # Example 2: ORCID field with direct value.
+  # Works with bare IDs, URNs (orcid:0000-...), or URLs.
+  field_orcid:
+    plugin: typed_identifier
+    itemtype: orcid
+    itemvalue: orcid_id
+
+  # Example 3: ISBN field.
+  field_isbn:
+    plugin: typed_identifier
+    itemtype: isbn
+    itemvalue: isbn
+
+  # Example 4: Dynamic identifier type from source data.
+  # Useful when source has different identifier types in the same column.
+  field_dynamic_identifier:
+    plugin: typed_identifier
+    itemtype: identifier_type
+    itemvalue: identifier_value
+
+  # Example 5: Multi-value field from JSON array.
+  # Each array item should have 'type' and 'value' keys.
+  field_identifiers:
+    -
+      plugin: callback
+      callable: json_decode
+      source: multi_identifiers
+    -
+      plugin: skip_on_empty
+      method: process
+    -
+      plugin: sub_process
+      process:
+        plugin: typed_identifier
+        itemtype: type
+        itemvalue: value
+
+  # Example 6: Using pipeline to transform before typed_identifier.
+  # Extract just the ID part if source has complex format.
+  field_processed_doi:
+    -
+      plugin: get
+      source: doi_url
+    -
+      # Could add other transformations here.
+      plugin: callback
+      callable: trim
+    -
+      plugin: typed_identifier
+      itemtype: doi
+
+  # Example 7: Static value for all rows.
+  field_static_identifier:
+    plugin: typed_identifier
+    itemtype: generic
+    itemvalue: 'STATIC-ID-123'
+
+  # Example 8: Conditional identifier based on source data.
+  field_conditional_identifier:
+    -
+      plugin: skip_on_empty
+      method: process
+      source: doi_url
+    -
+      plugin: typed_identifier
+      itemtype: doi
+      itemvalue: doi_url
+
+migration_dependencies: {}

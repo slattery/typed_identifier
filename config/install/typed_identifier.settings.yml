@@ -1,0 +1,6 @@
+generic_custom_labels:
+  - key: 'custom_id_1'
+    label: 'Custom Identifier Type 1'
+  - key: 'custom_id_2'
+    label: 'Custom Identifier Type 2'
+default_display_types: []

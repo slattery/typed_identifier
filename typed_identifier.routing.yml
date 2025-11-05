@@ -1,0 +1,7 @@
+typed_identifier.settings:
+  path: '/admin/config/content/typed-identifier'
+  defaults:
+    _form: 'Drupal\typed_identifier\Form\TypedIdentifierSettingsForm'
+    _title: 'Typed Identifier Settings'
+  requirements:
+    _permission: 'administer site configuration'

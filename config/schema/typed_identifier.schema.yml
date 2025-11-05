@@ -1,0 +1,114 @@
+# Field settings schema
+field.field_settings.typed_identifier:
+  type: mapping
+  label: 'Typed Identifier field settings'
+  mapping:
+    uniqueness_scope:
+      type: string
+      label: 'Uniqueness scope'
+    allowed_identifier_types:
+      type: sequence
+      label: 'Allowed identifier types'
+      sequence:
+        type: string
+        label: 'Identifier type plugin ID'
+    custom_generic_labels:
+      type: sequence
+      label: 'Custom labels for Generic identifier type'
+      sequence:
+        type: mapping
+        mapping:
+          key:
+            type: string
+            label: 'Machine name'
+          label:
+            type: label
+            label: 'Human-readable label'
+
+# Widget settings schema
+field.widget.settings.typed_identifier_widget:
+  type: mapping
+  label: 'Typed Identifier widget settings'
+  mapping:
+    placeholder_itemtype:
+      type: label
+      label: 'Placeholder for item type field'
+    placeholder_itemvalue:
+      type: label
+      label: 'Placeholder for item value field'
+
+# Formatter settings schema
+field.formatter.settings.typed_identifier_prefix:
+  type: mapping
+  label: 'Typed Identifier Prefix formatter settings'
+  mapping:
+    display_as_link:
+      type: boolean
+      label: 'Display as link'
+    open_in_new_window:
+      type: boolean
+      label: 'Open link in new window'
+    filter_by_types:
+      type: sequence
+      label: 'Filter by identifier types'
+      sequence:
+        type: string
+        label: 'Identifier type plugin ID'
+
+field.formatter.settings.typed_identifier_label:
+  type: mapping
+  label: 'Typed Identifier Label formatter settings'
+  mapping:
+    display_as_link:
+      type: boolean
+      label: 'Display as link'
+    open_in_new_window:
+      type: boolean
+      label: 'Open link in new window'
+    filter_by_types:
+      type: sequence
+      label: 'Filter by identifier types'
+      sequence:
+        type: string
+        label: 'Identifier type plugin ID'
+
+field.formatter.settings.typed_identifier_label_prefix:
+  type: mapping
+  label: 'Typed Identifier Label+Prefix formatter settings'
+  mapping:
+    display_as_link:
+      type: boolean
+      label: 'Display as link'
+    open_in_new_window:
+      type: boolean
+      label: 'Open link in new window'
+    filter_by_types:
+      type: sequence
+      label: 'Filter by identifier types'
+      sequence:
+        type: string
+        label: 'Identifier type plugin ID'
+
+# Site-wide settings schema
+typed_identifier.settings:
+  type: config_object
+  label: 'Typed Identifier settings'
+  mapping:
+    generic_custom_labels:
+      type: sequence
+      label: 'Global custom labels for Generic identifier type'
+      sequence:
+        type: mapping
+        mapping:
+          key:
+            type: string
+            label: 'Machine name'
+          label:
+            type: label
+            label: 'Human-readable label'
+    default_display_types:
+      type: sequence
+      label: 'Default identifier types to display'
+      sequence:
+        type: string
+        label: 'Identifier type plugin ID'

@@ -1,0 +1,6 @@
+typed_identifier.settings:
+  title: 'Typed Identifier'
+  description: 'Configure default display settings for typed identifiers.'
+  route_name: typed_identifier.settings
+  parent: system.admin_config_content
+  weight: 10

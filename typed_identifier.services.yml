@@ -1,0 +1,13 @@
+services:
+  plugin.manager.typed_identifier.identifier_type:
+    class: Drupal\typed_identifier\IdentifierTypePluginManager
+    parent: default_plugin_manager
+
+  typed_identifier.parser:
+    class: Drupal\typed_identifier\Service\IdentifierTypeParser
+    arguments: ['@plugin.manager.typed_identifier.identifier_type']
+
+  typed_identifier.twig_extension:
+    class: Drupal\typed_identifier\TwigExtension\TypedIdentifierTwigExtension
+    tags:
+      - { name: twig.extension }

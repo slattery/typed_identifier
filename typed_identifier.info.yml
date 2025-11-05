@@ -1,0 +1,8 @@
+name: 'Typed Identifier'
+type: module
+description: 'Provides a field type for storing typed identifier pairs with pluggable validation and formatting.'
+package: 'Field types'
+core_version_requirement: ^10.4 || ^11
+dependencies:
+  - drupal:field
+  - drupal:text
