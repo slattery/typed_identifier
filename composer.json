@@ -1,0 +1,7 @@
+{
+  "name": "slattery/typed_identifier",
+  "description": "Provides a field type for storing typed identifier pairs with pluggable validation and formatting.",
+  "type": "drupal-custom-module",
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
