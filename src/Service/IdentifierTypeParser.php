@@ -55,26 +55,23 @@ class IdentifierTypeParser {
       return NULL;
     }
 
-    // Strip "key:" prefix if present (e.g., "id:https://openalex.org/W...")
-    $value = $input;
-    if (preg_match('/^[a-zA-Z0-9_]+:(.+)$/', $input, $matches)) {
-      $value = $matches[1];
-    }
-
     // Attempt to match by URN format first (highest confidence).
-    $result = $this->matchByUrn($value);
+    // E.g., "openalex:W123456" or "doi:10.1234/example"
+    $result = $this->matchByUrn($input);
     if ($result) {
       return $result;
     }
 
     // Attempt to match by URL prefix (high confidence).
-    $result = $this->matchByPrefix($value);
+    // E.g., "https://openalex.org/W123456"
+    $result = $this->matchByPrefix($input);
     if ($result) {
       return $result;
     }
 
     // Attempt to match by regex validation (lower confidence).
-    $result = $this->matchByRegex($value);
+    // E.g., bare IDs like "W123456"
+    $result = $this->matchByRegex($input);
     if ($result) {
       return $result;
     }
