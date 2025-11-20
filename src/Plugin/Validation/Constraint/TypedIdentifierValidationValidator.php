@@ -76,8 +76,8 @@ class TypedIdentifierValidationValidator extends ConstraintValidator {
     if ($uniqueness_scope === 'entity') {
       $this->validatePerEntityUniqueness($item, $constraint, $plugin_itemtype);
     }
-    elseif ($uniqueness_scope === 'global') {
-      $this->validateGlobalUniqueness($item, $constraint, $plugin_itemtype);
+    elseif ($uniqueness_scope === 'bundle') {
+      $this->validateBundleUniqueness($item, $constraint, $plugin_itemtype);
     }
   }
 
@@ -145,12 +145,12 @@ class TypedIdentifierValidationValidator extends ConstraintValidator {
    * @param string $normalized_itemtype
    *   The normalized base itemtype (e.g., 'generic' instead of 'generic:key').
    */
-  protected function validateGlobalUniqueness($item, Constraint $constraint, $normalized_itemtype) {
-    // Global uniqueness includes per-entity uniqueness.
+  protected function validateBundleUniqueness($item, Constraint $constraint, $normalized_itemtype) {
+    // Bundle uniqueness includes per-entity uniqueness.
     // Check within the same entity first.
     $this->validatePerEntityUniqueness($item, $constraint, $normalized_itemtype);
 
-    // If no per-entity violation, check across other entities.
+    // If no per-entity violation, check across other entities in the same bundle.
     $entity = $item->getEntity();
     $field_name = $item->getFieldDefinition()->getName();
     $itemvalue = $item->get('itemvalue')->getValue();
@@ -174,7 +174,7 @@ class TypedIdentifierValidationValidator extends ConstraintValidator {
     $existing = $query->count()->execute();
 
     if ($existing > 0) {
-      $this->context->addViolation($constraint->notUniqueGlobal, [
+      $this->context->addViolation($constraint->notUniqueBundle, [
         '%type' => $normalized_itemtype,
         '%value' => $itemvalue,
       ]);

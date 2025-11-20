@@ -224,7 +224,7 @@ class TypedIdentifierItem extends FieldItemBase {
       '#options' => [
         'none' => $this->t('None - allow duplicates'),
         'entity' => $this->t('Per-entity - prevent duplicates within the same entity'),
-        'global' => $this->t('Global - prevent duplicates across all entities'),
+        'bundle' => $this->t('Bundle - prevent duplicates across all entities in this bundle'),
       ],
       '#default_value' => $this->getSetting('uniqueness_scope'),
     ];

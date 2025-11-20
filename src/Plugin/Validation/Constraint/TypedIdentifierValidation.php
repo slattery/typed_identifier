@@ -50,10 +50,10 @@ class TypedIdentifierValidation extends Constraint {
   public $notUniquePerEntity = 'The identifier %type:%value already exists in this entity\'s field.';
 
   /**
-   * Message when the identifier is not unique (global scope).
+   * Message when the identifier is not unique (bundle scope).
    *
    * @var string
    */
-  public $notUniqueGlobal = 'The identifier %type:%value already exists in another entity.';
+  public $notUniqueBundle = 'The identifier %type:%value already exists in another entity in this bundle.';
 
 }

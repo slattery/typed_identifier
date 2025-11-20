@@ -74,8 +74,13 @@ function typed_identifier_field_views_data(\Drupal\field\FieldStorageConfigInter
       'relationship' => [
         'id' => 'typed_identifier_relationship',
         'field_name' => $field_name,
-        'base' => $table_name,
+        // Set base to node_field_data as the default target.
+        // This will be dynamically updated in init() based on user configuration.
+        'base' => 'node_field_data',
+        // base field points to the SOURCE field, not target.
+        // This is what $this->realField will be set to.
         'base field' => $field_name,
+        'entity type' => 'node',
         'label' => t('@field_name: Typed Identifier', ['@field_name' => $field_name]),
       ],
     ];
@@ -92,6 +97,20 @@ function typed_identifier_field_views_data(\Drupal\field\FieldStorageConfigInter
         'table' => $table_name,
       ],
     ];
+
+    // EXISTS filter - added on the URN field.
+    if (isset($data[$table_name][$field_name . '_urn'])) {
+      $data[$table_name][$field_name . '_urn_exists'] = [
+        'title' => t('@field_name: Exists in other entity', ['@field_name' => $field_name]),
+        'help' => t('Filter to show only entities that have matching identifiers in a specified target entity and field using an efficient EXISTS subquery.', ['@field_name' => $field_name]),
+        'group' => t('Content'),
+        'filter' => [
+          'id' => 'typed_identifier_exists',
+          'field_name' => $field_name,
+          'entity_type' => $entity_type_id,
+        ],
+      ];
+    }
   }
 
   return $data;

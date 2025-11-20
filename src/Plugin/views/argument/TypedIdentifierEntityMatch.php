@@ -40,6 +40,7 @@ class TypedIdentifierEntityMatch extends ArgumentPluginBase {
     $options['source_entity_type'] = ['default' => 'node'];
     $options['source_field'] = ['default' => ''];
     $options['match_all'] = ['default' => FALSE];
+    $options['require_published'] = ['default' => FALSE];
     return $options;
   }
 
@@ -85,24 +86,19 @@ class TypedIdentifierEntityMatch extends ArgumentPluginBase {
       '#options' => $entity_type_options,
       '#default_value' => $this->options['source_entity_type'],
       '#required' => TRUE,
-      '#ajax' => [
-        'callback' => [static::class, 'updateSourceFieldOptions'],
-        'wrapper' => 'source-field-wrapper',
-      ],
     ];
 
-    // Get typed_identifier fields on source entity.
-    $source_field_options = $this->getSourceFieldOptions($this->options['source_entity_type']);
+    // Get typed_identifier fields on source entity with optgroups by bundle.
+    $source_field_options = $this->getAllSourceFieldOptions($this->options['source_entity_type']);
 
     $form['source_field'] = [
       '#type' => 'select',
       '#title' => $this->t('Source field'),
-      '#description' => $this->t('The typed_identifier field on the source entity to get values from.'),
+      '#description' => $this->t('The typed_identifier field on the source entity to get values from. Fields are grouped by content type.'),
       '#options' => $source_field_options,
       '#default_value' => $this->options['source_field'],
       '#required' => TRUE,
-      '#prefix' => '<div id="source-field-wrapper">',
-      '#suffix' => '</div>',
+      '#empty_option' => $this->t('- Select -'),
     ];
 
     $form['match_all'] = [
@@ -112,15 +108,22 @@ class TypedIdentifierEntityMatch extends ArgumentPluginBase {
       '#default_value' => $this->options['match_all'],
     ];
 
+    $form['require_published'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Require published source content'),
+      '#description' => $this->t('If checked, only extract identifiers from the source entity if it is published (status = 1).'),
+      '#default_value' => $this->options['require_published'],
+    ];
+
     // Add guidance for typical usage.
     $form['usage_info'] = [
       '#type' => 'markup',
       '#markup' => '<div class="messages messages--info">' .
-        '<strong>' . $this->t('Typical Usage:') . '</strong><br>' .
-        $this->t('When providing default value:') . '<ul>' .
-        '<li>' . $this->t('Select "Content ID from URL" to use the node being viewed') . '</li>' .
-        '<li>' . $this->t('Or select "Raw value from URL" and use path like /research-outputs/%node') . '</li>' .
-        '</ul></div>',
+      '<strong>' . $this->t('Typical Usage:') . '</strong><br>' .
+      $this->t('When providing default value:') . '<ul>' .
+      '<li>' . $this->t('Select "Content ID from URL" to use the node being viewed') . '</li>' .
+      '<li>' . $this->t('Or select "Raw value from URL" and use path like /research-outputs/%node') . '</li>' .
+      '</ul></div>',
     ];
   }
 
@@ -152,10 +155,64 @@ class TypedIdentifierEntityMatch extends ArgumentPluginBase {
   }
 
   /**
-   * AJAX callback to update source field options.
+   * Get ALL typed_identifier fields across all bundles for an entity type.
+   *
+   * Returns fields organized by bundle using optgroups.
+   *
+   * @param string $entity_type_id
+   *   The entity type ID.
+   *
+   * @return array
+   *   Array of field options organized by bundle (optgroups).
    */
-  public static function updateSourceFieldOptions(array &$form, FormStateInterface $form_state) {
-    return $form['options']['source_field'];
+  protected function getAllSourceFieldOptions($entity_type_id) {
+    if (empty($entity_type_id)) {
+      return [];
+    }
+
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $entity_field_manager = \Drupal::service('entity_field.manager');
+
+    try {
+      $entity_type_def = $entity_type_manager->getDefinition($entity_type_id);
+      $bundle_entity_type_id = $entity_type_def->getBundleEntityType();
+
+      if (!$bundle_entity_type_id) {
+        // Entity type doesn't have bundles (e.g., user).
+        // Return flat list of fields.
+        return $this->getSourceFieldOptions($entity_type_id);
+      }
+
+      // Get all bundles for this entity type.
+      $bundle_storage = $entity_type_manager->getStorage($bundle_entity_type_id);
+      $bundles = $bundle_storage->loadMultiple();
+
+      $options = [];
+      foreach ($bundles as $bundle_id => $bundle) {
+        $field_definitions = $entity_field_manager->getFieldDefinitions(
+          $entity_type_id,
+          $bundle_id
+        );
+        $bundle_fields = [];
+
+        foreach ($field_definitions as $field_name => $field_def) {
+          if ($field_def->getType() === 'typed_identifier') {
+            $bundle_fields[$field_name] = $field_def->getLabel();
+          }
+        }
+
+        // Only add optgroup if this bundle has typed_identifier fields.
+        if (!empty($bundle_fields)) {
+          $options[$bundle->label()] = $bundle_fields;
+        }
+      }
+
+      return $options;
+    }
+    catch (\Exception $e) {
+      // If entity type doesn't exist or error occurs, return empty.
+      return [];
+    }
   }
 
   /**
@@ -188,6 +245,9 @@ class TypedIdentifierEntityMatch extends ArgumentPluginBase {
       return;
     }
 
+    // Get require_published option.
+    $require_published = $this->options['require_published'];
+
     // Load the source entity and get identifier values.
     try {
       $entity_storage = \Drupal::entityTypeManager()->getStorage($source_entity_type);
@@ -197,6 +257,15 @@ class TypedIdentifierEntityMatch extends ArgumentPluginBase {
         // Entity doesn't exist or doesn't have the field - exclude all results.
         $this->query->addWhereExpression($group, '1 = 0');
         return;
+      }
+
+      // Check if source entity is published when required.
+      if ($require_published && $source_entity_type === 'node') {
+        if (!$source_entity->isPublished()) {
+          // Source entity is not published - exclude all results.
+          $this->query->addWhereExpression($group, '1 = 0');
+          return;
+        }
       }
 
       // Gather URN values from the source entity.

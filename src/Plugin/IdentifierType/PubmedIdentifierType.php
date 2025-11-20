@@ -8,7 +8,7 @@ use Drupal\typed_identifier\IdentifierTypePluginBase;
  * Provides a PubMed ID identifier type.
  *
  * @IdentifierType(
- *   id = "pubmed",
+ *   id = "pmid",
  *   label = @Translation("PubMed ID"),
  *   prefix = "https://pubmed.ncbi.nlm.nih.gov/",
  *   validation_regex = "^\d+$",
