@@ -9,7 +9,7 @@ use Drupal\typed_identifier\IdentifierTypePluginBase;
  *
  * @IdentifierType(
  *   id = "openalex",
- *   label = @Translation("OpenAlex ID"),
+ *   label = @Translation("OpenAlex"),
  *   prefix = "https://openalex.org/",
  *   validation_regex = "^[WAICVPFS]\d{2,10}$",
  *   description = @Translation("OpenAlex Identifier")

@@ -9,7 +9,7 @@ use Drupal\typed_identifier\IdentifierTypePluginBase;
  *
  * @IdentifierType(
  *   id = "pmid",
- *   label = @Translation("PubMed ID"),
+ *   label = @Translation("PubMed"),
  *   prefix = "https://pubmed.ncbi.nlm.nih.gov/",
  *   validation_regex = "^\d+$",
  *   description = @Translation("PubMed Unique Identifier")

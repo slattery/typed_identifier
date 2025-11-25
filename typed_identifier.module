@@ -6,6 +6,8 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Template\Attribute;
+use Drupal\Core\Template\AttributeHelper;
 
 /**
  * Implements hook_help().
@@ -27,5 +29,37 @@ function typed_identifier_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<dd>' . t('The Generic identifier type allows custom labels defined in site configuration or per field. It has no prefix or validation beyond XSS protection.') . '</dd>';
       $output .= '</dl>';
       return $output;
+  }
+}
+
+/**
+ * Implements template_preprocess_field_multiple_value_form().
+ */
+function typed_identifier_preprocess_field_multiple_value_form(&$variables) {
+
+  if (empty($variables['element']['#description']) && isset($variables['table']))
+  {
+    $element = $variables['element'];
+    $rows = $variables['table']['#rows'];
+    //avoiding warnings in the logs
+    if (
+        isset($rows[1])
+        && isset($rows[1]['data'])
+        && isset($rows[1]['data'][1])
+        && isset($rows[1]['data'][1]['data'])
+        && is_array($rows[1]['data'][1])
+        && !empty($rows[1]['data'][1]['data']['itemtype'])
+        && !empty($rows[1]['data'][1]['data']['#description'])
+    )
+    {
+      $description_content = $rows[1]['data'][1]['data']['#description'];
+      $element['#attributes']['aria-describedby'] = $element['#id'] . '--description';
+      $description_id = $element['#attributes']['aria-describedby'];
+      $description_attributes['id'] = $description_id;
+      $variables['description']['attributes'] = new Attribute($description_attributes);
+      $variables['description']['content'] = $description_content;
+      // Add the description's id to the table aria attributes.
+      $variables['table']['#attributes']['aria-describedby'] = $element['#attributes']['aria-describedby'];
+    }
   }
 }

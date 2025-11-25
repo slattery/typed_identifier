@@ -9,7 +9,7 @@ use Drupal\typed_identifier\IdentifierTypePluginBase;
  *
  * @IdentifierType(
  *   id = "scopus",
- *   label = @Translation("Scopus Author ID"),
+ *   label = @Translation("Scopus"),
  *   prefix = "https://www.scopus.com/authid/detail.uri?authorId=",
  *   validation_regex = "^\d+$",
  *   description = @Translation("Scopus Author Identifier")

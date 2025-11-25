@@ -169,6 +169,16 @@ class TypedIdentifierWidget extends WidgetBase {
       '#maxlength' => 255,
     ];
 
+    // Add help text showing allowed identifier types.
+    if (!empty($options) && count($options) > 1) {
+      // Remove the '- Select -' option from the display list.
+      $allowed_type_labels = array_slice($options, 1);
+      $allowed_types_text = implode(', ', $allowed_type_labels);
+      $element['#description'] = $this->t('Allowed Types: @types', [
+        '@types' => $allowed_types_text,
+      ]);
+    }
+
     return $element;
   }
 
